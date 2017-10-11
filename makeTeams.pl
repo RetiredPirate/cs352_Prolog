@@ -13,29 +13,33 @@
  * names, it then checks for pairwise compatibility.
  ******/
 divideIntoFours([],[]).
-divideIntoFours([A,B,C,D], [[A,B,C,D]]) :-
-    compat(A,B),
-    compat(A,C),
-    compat(A,D),
-    compat(B,C),
-    compat(B,D),
-    compat(C,D).
+divideIntoFours(INPUT, [PICKED|REST2]) :-
+    % teamCompat([A,B,C,D]),
+    pickN(4, INPUT, PICKED, UNPICKED),
+    divideIntoFours(UNPICKED, REST2).
 % divideIntoFours().
-
-
+%
+%compatible teams
+teamCompat([A,B,C,D]) :-
+    compatWith(A,B),
+    compatWith(A,C),
+    compatWith(A,D),
+    compatWith(B,C),
+    compatWith(B,D),
+    compatWith(C,D).
 
 /******
  * basic choosing: chooses four compatible members from the given list
  *
  ******/
+%pickN(N, List, Picked, Unpicked)
 
-
-pickN(0, [], [], REST).
-pickN(N, [VAL|REST1], [VAL|REST2], REST3) :-
-    M is N,
-    pickN(M, REST1, REST2).
+pickN(0, REST, [], REST).
+pickN(N, [VAL|REST1], [VAL|REST2], REST1) :-
+    M is N-1,
+    pickN(M, REST1, REST2, REST1).
 pickN(N, [VAL|REST1], REST2, [VAL|REST3]) :-
-    pickN(N, REST1, REST2).
+    pickN(N, REST1, REST2, REST3).
 pickN(N, [_|REST1], REST2, REST3) :- pickN(N, REST1, REST2, REST3).
 
 
