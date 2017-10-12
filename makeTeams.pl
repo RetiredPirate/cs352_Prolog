@@ -16,17 +16,16 @@ divideIntoFours([],[]).
 divideIntoFours(INPUT, [PICKED|REST2]) :-
     % teamCompat([A,B,C,D]),
     pickN(4, INPUT, PICKED, UNPICKED),
+    % teamCompat(PICKlED),
     divideIntoFours(UNPICKED, REST2).
 % divideIntoFours().
 %
 %compatible teams
-teamCompat([A,B,C,D]) :-
-    compatWith(A,B),
-    compatWith(A,C),
-    compatWith(A,D),
-    compatWith(B,C),
-    compatWith(B,D),
-    compatWith(C,D).
+teamCompat(_, []).
+teamCompat(MEM1, [MEM2|TEAM]) :-
+    compatWith(MEM1, MEM2),
+    compatWith(MEM2, MEM1),
+    teamCompat(MEM1, TEAM).
 
 /******
  * basic choosing: chooses four compatible members from the given list
@@ -37,6 +36,7 @@ teamCompat([A,B,C,D]) :-
 pickN(0, [], [], []).
 pickN(N, [VAL|REST1], [VAL|REST2], REST3) :-
     M is N-1,
+    teamCompat(VAL, REST2), %TODO: Fix this line
     pickN(M, REST1, REST2, REST3).
 pickN(N, [VAL|REST1], REST2, [VAL|REST3]) :-
     pickN(N, REST1, REST2, REST3).
@@ -85,4 +85,8 @@ test4(RESULT) :-
 
 % Test the pickN function
 test5(RESULT, UNPICKED) :-
-    groupOfSize(9, LIST), pickN(4, LIST, RESULT, UNPICKED).
+    groupOfSize(2, LIST), pickN(1, LIST, RESULT, UNPICKED).
+
+% Test teamCompat function
+test6() :-
+    teamCompat(aaron, []).
