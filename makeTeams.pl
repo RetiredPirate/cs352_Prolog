@@ -34,13 +34,13 @@ teamCompat([A,B,C,D]) :-
  ******/
 %pickN(N, List, Picked, Unpicked)
 
-pickN(0, REST, [], REST).
-pickN(N, [VAL|REST1], [VAL|REST2], REST1) :-
+pickN(0, [], [], []).
+pickN(N, [VAL|REST1], [VAL|REST2], REST3) :-
     M is N-1,
-    pickN(M, REST1, REST2, REST1).
+    pickN(M, REST1, REST2, REST3).
 pickN(N, [VAL|REST1], REST2, [VAL|REST3]) :-
     pickN(N, REST1, REST2, REST3).
-pickN(N, [_|REST1], REST2, REST3) :- pickN(N, REST1, REST2, REST3).
+% pickN(N, [_|REST1], REST2, REST3) :- pickN(N, REST1, REST2, REST3).
 
 
 /******
@@ -82,3 +82,7 @@ test3(RESULT) :-
 % this one should have something like 22 solutions (assuming ...)
 test4(RESULT) :-
     groupOfSize(20,LIST), divideIntoFours(LIST, RESULT).
+
+% Test the pickN function
+test5(RESULT, UNPICKED) :-
+    groupOfSize(9, LIST), pickN(4, LIST, RESULT, UNPICKED).
