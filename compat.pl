@@ -1,7 +1,7 @@
 % Modify the thresholdLimit method to redefine the
 % number that needs to be reached for two people to
 % be considered compatible
-thresholdLimit(20).
+thresholdLimit(15).
 
 % Definition of our compatibility relation
 compatWith(A,B) :-

@@ -8,38 +8,74 @@
 /******
  * basic assignment: divide into teams of four
  *
- * The implementation below is VERY incomplete. It only works if
- * the original list contains zero or four names. In the case of four
- * names, it then checks for pairwise compatibility.
+ * The implementation below is VERY complete. It works if
+ * the original list contains a multiple of four names. In
+ * every case, it checks for team compatibility.
+ *
+ * divideIntoFours(LIST, TEAMS) :- divideIntoRange(4, 4, LIST, TEAMS)
  ******/
 divideIntoFours([],[]).
-divideIntoFours(INPUT, [PICKED|REST2]) :-
-    pickN(4, INPUT, PICKED, UNPICKED),
-    teamCompat(PICKED),
+divideIntoFours([MEM|INPUT], [[MEM|PICKED]|REST2]) :-
+    pickN(4, [MEM|INPUT], [MEM|PICKED], UNPICKED),
+    teamCompat([MEM|PICKED]),
     divideIntoFours(UNPICKED, REST2).
 
 
 
 /******
- * test if team is compatible:
+ * enhancement assignment: divide into teams of range
+ *
+ * The implementation below is VERY incomplete. It only works if
+ * the original list contains zero or four names. In the case of four
+ * names, it then checks for pairwise compatibility.
+ *
+ * divideIntoRange(LO, HI, INPUT, OUTPUT)
+ ******/
+divideIntoRange(_, _, [], []).
+divideIntoRange(LO, HI, [MEM|INPUT], [[MEM|PICKED]|REST2]) :-
+    between(LO, HI, N),
+    pickN(N, [MEM|INPUT], [MEM|PICKED], UNPICKED),
+    teamCompat([MEM|PICKED]),
+    divideIntoRange(LO, HI, UNPICKED, REST2).
+
+
+
+/******
+ * test if team is compatible, any size:
  *
  * Parameters:
- *      [A,B,C,D]: List of four team members
+ *      [LIST]: List of team members
  *
  ******/
-teamCompat([A,B,C,D]) :-
-    compatWith(A, B),
-    compatWith(A, C),
-    compatWith(A, D),
-    compatWith(B, C),
-    compatWith(B, D),
-    compatWith(C, D).
-% teamCompat(_, []).
-% teamCompat(MEM1, [MEM2|TEAM]) :-
-%     compatWith(MEM1, MEM2),
-%     compatWith(MEM2, MEM1),
-%     teamCompat(MEM1, TEAM).
+teamCompat([]).
+teamCompat([MEM|REST]) :-
+    memCompat(MEM, REST),
+    teamCompat(REST).
 
+
+
+/******
+ * test if one memeber is compatible with a team:
+ *
+ * Parameters:
+ *      [MEMBER, TEAM]: List of four team members
+ *
+ ******/
+memCompat(_, []).
+memCompat(MEM1, [MEM2|TEAM]) :-
+    compatWith(MEM1, MEM2),
+    compatWith(MEM2, MEM1),
+    memCompat(MEM1, TEAM).
+
+
+/******
+ * test if one memeber is compatible with a team:
+ *
+ * Parameters:
+ *      [MEMBER, TEAM]: List of four team members
+ *
+ ******/
+teamFriendliness([]).
 
 
 /******
@@ -62,26 +98,12 @@ pickN(N, [VAL|REST1], REST2, [VAL|REST3]) :-
 
 
 
-
-/******
- * get all pairs: gets pairs of list to check compatibility
- *
- ******/
-
-
-
-
-
-
 /******
  * enhancement: divide into groups of 3 or 4
  ******/
-% divideIntoThreesOrFours(LIST, RESULT) :-
+divideIntoThreesOrFours(LIST, RESULT) :- divideIntoRange(3, 4, LIST, RESULT).
 
-/******
- * enhancement: divide into groups whose size is within a range
- ******/
-% divideIntoRange(LOW, HIGH, LIST, RESULT) :-
+
 
 /******
  * some tests
@@ -101,11 +123,16 @@ test3(RESULT) :-
 
 % this one should have something like 22 solutions (assuming ...)
 test4(RESULT) :-
-    groupOfSize(24,LIST), divideIntoFours(LIST, RESULT).
+    groupOfSize(16,LIST), divideIntoFours(LIST, RESULT).
 
 % Test the pickN function
 test5(RESULT, UNPICKED) :-
-    groupOfSize(40, LIST), pickN(4, LIST, RESULT, UNPICKED).
+    groupOfSize(20, LIST), pickN(4, LIST, RESULT, UNPICKED).
 
+% teamCompat test
 test6() :-
     groupOfSize(4, LIST), teamCompat(LIST).
+
+% Redundancy Test
+test7(RESULT) :-
+    groupOfSize(16, LIST), divideIntoRange(4, 4, LIST, RESULT).
