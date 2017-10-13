@@ -8,7 +8,7 @@ compatWith(A,B) :-
   thresholdLimit(THRESH),
   likes(A,B,N),
   N >= THRESH.
-    
+
 % helper method for 'compatWith'
 likes(A,B,N) :-  friendliness(A,B,N).
 likes(A,B,N) :-  friendliness(B,A,N).
