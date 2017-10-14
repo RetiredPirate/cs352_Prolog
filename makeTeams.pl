@@ -12,36 +12,21 @@
  * the original list contains a multiple of four names. In
  * every case, it checks for team compatibility.
  *
- * divideIntoFours(LIST, TEAMS) :- divideIntoRange(4, 4, LIST, TEAMS)
  ******/
-divideIntoFours([],[]).
-divideIntoFours([MEM|INPUT], [[MEM|PICKED]|REST2]) :-
-    pickN(4, [MEM|INPUT], [MEM|PICKED], UNPICKED),
-    teamCompat([MEM|PICKED]),
-    divideIntoFours(UNPICKED, REST2).
+divideIntoFours(LIST, TEAMS) :- divideIntoRange(4, 4, LIST, TEAMS, 0).
+
+%%%% Leaving the original implementation here in case it is needed.
+% divideIntoFours([],[]).
+% divideIntoFours([MEM|INPUT], [[MEM|PICKED]|REST2]) :-
+%     pickN(4, [MEM|INPUT], [MEM|PICKED], UNPICKED),
+%     teamCompat([MEM|PICKED]),
+%     divideIntoFours(UNPICKED, REST2).
+
 
 
 
 /******
- * enhancement assignment: divide into teams of range
- *
- * The implementation below is VERY incomplete. It only works if
- * the original list contains zero or four names. In the case of four
- * names, it then checks for pairwise compatibility.
- *
- * divideIntoRange(LO, HI, INPUT, OUTPUT)
- ******/
-divideIntoRange(_, _, [], []).
-divideIntoRange(LO, HI, [MEM|INPUT], [[MEM|PICKED]|REST2]) :-
-    between(LO, HI, N),
-    pickN(N, [MEM|INPUT], [MEM|PICKED], UNPICKED),
-    teamCompat([MEM|PICKED]),
-    divideIntoRange(LO, HI, UNPICKED, REST2).
-
-
-
-/******
- * test if team is compatible, any size:
+ * test if team is compatible, any size, uses compatWith():
  *
  * Parameters:
  *      [LIST]: List of team members
@@ -55,10 +40,10 @@ teamCompat([MEM|REST]) :-
 
 
 /******
- * test if one memeber is compatible with a team:
- *
+ * test if one memeber is compatible with a team, uses compatWith():
+ * helper for teamCompat
  * Parameters:
- *      [MEMBER, TEAM]: List of four team members
+ *      [MEMBER, TEAM]: One member and list of team members
  *
  ******/
 memCompat(_, []).
@@ -68,14 +53,36 @@ memCompat(MEM1, [MEM2|TEAM]) :-
     memCompat(MEM1, TEAM).
 
 
+
 /******
- * test if one memeber is compatible with a team:
+ * anhancement: get total team friendliness, uses likes():
  *
  * Parameters:
- *      [MEMBER, TEAM]: List of four team members
+ *      [TARGET, TEAM]: target threshhold, List of team members
  *
  ******/
-teamFriendliness([]).
+teamLikes([_], 0).
+teamLikes([MEM|TEAM], SUM) :-
+    memLikes(MEM, TEAM, N),
+    teamLikes(TEAM, M),
+    SUM is N + M.
+
+
+
+/******
+ * anhancement: get total team friendliness with single member, uses likes():
+ * helper for teamLikes
+ *
+ * Parameters:
+ *      [MEMBER, TEAM, SUM]: target threshhold, List of team members
+ *
+ ******/
+memLikes(_, [], 0).
+memLikes(MEM1, [MEM2|TEAM], SUM) :-
+    likes(MEM1, MEM2, N),
+    memLikes(MEM1, TEAM, M),
+    SUM is N + M.
+
 
 
 /******
@@ -99,9 +106,66 @@ pickN(N, [VAL|REST1], REST2, [VAL|REST3]) :-
 
 
 /******
- * enhancement: divide into groups of 3 or 4
+ * enhancement assignment: divide into teams of range
+ *
+ * divides the given list into teams with size in the range
+ * specified by HI and LO.
+ *
+ * divideIntoRange(LO, HI, INPUT, OUTPUT, LEFTOVER)
  ******/
-divideIntoThreesOrFours(LIST, RESULT) :- divideIntoRange(3, 4, LIST, RESULT).
+divideIntoRange(_, _, LIST, [], LEFTOVER) :-
+    length(LIST, LEN),
+    LEN =< LEFTOVER.
+divideIntoRange(LO, HI, [MEM|INPUT], [[MEM|PICKED]|REST2], LEFTOVER) :-
+    between(LO, HI, N),
+    pickN(N, [MEM|INPUT], [MEM|PICKED], UNPICKED),
+    teamCompat([MEM|PICKED]),
+    divideIntoRange(LO, HI, UNPICKED, REST2, LEFTOVER).
+
+
+
+/******
+ * enhancement: divide into groups of 3 or 4
+ *
+ * simply use the divideIntoRange function
+ ******/
+divideIntoThreesOrFours(LIST, RESULT) :- divideIntoRange(3, 4, LIST, RESULT, 0).
+
+
+
+/******
+ * enhancement assignment: divide into teams of range with target
+ *
+ * Version of divideIntoRange that uses the total team friendliness
+ * instead of the compatibility to decide if a team is valid
+ *
+ * divideIntoRange(TARGET, LO, HI, INPUT, OUTPUT)
+ ******/
+divideIntoRangeWithTarget(_, _, _, [], []).
+divideIntoRangeWithTarget(TARGET, LO, HI, [MEM|INPUT], [[MEM|PICKED]|REST2]) :-
+    between(LO, HI, N),
+    pickN(N, [MEM|INPUT], [MEM|PICKED], UNPICKED),
+    teamLikes([MEM|PICKED], LIKES),
+    TARGET =< LIKES,
+    divideIntoRangeWithTarget(TARGET, LO, HI, UNPICKED, REST2).
+
+
+
+/******
+ * enhancement: divide into groups 4 with target
+ *
+ * simply use the divideIntoRangeWithTarget function
+ ******/
+divideIntoFoursWithTarget(TARGET, LIST, TEAM) :-
+    divideIntoRangeWithTarget(TARGET, 4, 4, LIST, TEAM).
+
+
+
+
+
+
+
+
 
 
 
@@ -135,4 +199,8 @@ test6() :-
 
 % Redundancy Test
 test7(RESULT) :-
-    groupOfSize(16, LIST), divideIntoRange(4, 4, LIST, RESULT).
+    groupOfSize(17, LIST), divideIntoRange(4, 4, LIST, RESULT, 2).
+
+% Target function Test
+test8(RESULT) :-
+    groupOfSize(10, LIST), divideIntoRangeWithTarget(150, 3, 5, LIST, RESULT).
