@@ -112,6 +112,14 @@ pickN(N, [VAL|REST1], REST2, [VAL|REST3]) :-
  * specified by HI and LO.
  *
  * divideIntoRange(LO, HI, INPUT, OUTPUT, LEFTOVER)
+ *
+ * HI and LO define the inclusive range of the teams sizes
+ * INPUT is the list of people to make teams from
+ * OUTPUT is the list of compatible team lists
+ * LEFTOVER is the number of people who may be unpicked.
+ *
+ * NOTE: for behavior without the last enhancement:
+ *          run with LEFTOVER = 0.
  ******/
 divideIntoRange(_, _, LIST, [], LEFTOVER) :-
     length(LIST, LEN),
@@ -158,9 +166,6 @@ divideIntoRangeWithTarget(TARGET, LO, HI, [MEM|INPUT], [[MEM|PICKED]|REST2]) :-
  ******/
 divideIntoFoursWithTarget(TARGET, LIST, TEAM) :-
     divideIntoRangeWithTarget(TARGET, 4, 4, LIST, TEAM).
-
-
-
 
 
 
